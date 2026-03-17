@@ -7,12 +7,12 @@ import AlertsPanel from "@/components/AlertsPanel";
 import DataTable from "@/components/DataTable";
 
 export default function Dashboard() {
-  const { filters, setFilters, stations, metrics, countdown } = useOceanData();
+  const { filters, setFilters, stations, metrics } = useOceanData();
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-6">
       <DashboardHeader liveMode={filters.liveMode} />
-      <ControlPanel filters={filters} onChange={setFilters} countdown={countdown} />
+      <ControlPanel filters={filters} onChange={setFilters} />
       <MetricsPanel metrics={metrics} />
       <OceanMap stations={stations} pitch={filters.pitch} showHeatmap={filters.showHeatmap} />
       <AlertsPanel stations={stations} />

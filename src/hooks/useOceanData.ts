@@ -28,29 +28,20 @@ const DEFAULT_FILTERS: OceanFilters = {
 export function useOceanData() {
   const [filters, setFilters] = useState<OceanFilters>(DEFAULT_FILTERS);
   const [allStations, setAllStations] = useState<LiveStation[]>(() => generateLiveData(4));
-  const [countdown, setCountdown] = useState(filters.refreshSec);
   const intervalRef = useRef<ReturnType<typeof setInterval>>();
 
   const refresh = useCallback(() => {
     setAllStations(generateLiveData(filters.liveMode ? 4 : 0));
-    setCountdown(filters.refreshSec);
-  }, [filters.liveMode, filters.refreshSec]);
+  }, [filters.liveMode]);
 
   useEffect(() => {
     if (!filters.liveMode) {
       clearInterval(intervalRef.current);
       return;
     }
-    setCountdown(filters.refreshSec);
     intervalRef.current = setInterval(() => {
-      setCountdown((c) => {
-        if (c <= 1) {
-          setAllStations(generateLiveData(4));
-          return filters.refreshSec;
-        }
-        return c - 1;
-      });
-    }, 1000);
+      setAllStations(generateLiveData(4));
+    }, filters.refreshSec * 1000);
     return () => clearInterval(intervalRef.current);
   }, [filters.liveMode, filters.refreshSec]);
 
@@ -76,5 +67,5 @@ export function useOceanData() {
       : 0,
   };
 
-  return { filters, setFilters, stations: filtered, allStations, metrics, countdown, refresh };
+  return { filters, setFilters, stations: filtered, allStations, metrics, refresh };
 }

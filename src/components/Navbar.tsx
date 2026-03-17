@@ -2,13 +2,12 @@ import { NavLink, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const NAV_ITEMS = [
-  { path: "/", label: "Dashboard", icon: "🌊" },
-  { path: "/coral-reefs", label: "Coral Reefs", icon: "🪸" },
-  { path: "/biodiversity", label: "Biodiversity", icon: "🐠" },
-  { path: "/pollution", label: "Pollution", icon: "🏭" },
-  { path: "/climate-impact", label: "Climate Impact", icon: "🌡" },
-  { path: "/marine-species", label: "Marine Species", icon: "🐋" },
-  { path: "/about", label: "About", icon: "ℹ️" },
+  { path: "/", label: "Dashboard" },
+  { path: "/coral-reefs", label: "Coral Reefs" },
+  { path: "/biodiversity", label: "Biodiversity" },
+  { path: "/pollution", label: "Pollution" },
+  { path: "/climate-impact", label: "Climate Impact" },
+  { path: "/about", label: "About" },
 ];
 
 export default function Navbar() {
@@ -17,8 +16,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-[1600px] items-center gap-1 px-4 py-2 overflow-x-auto">
         <div className="mr-4 flex items-center gap-2 shrink-0">
-          <span className="text-2xl">🌊</span>
-          <span className="font-display text-sm font-extrabold tracking-tight text-foreground hidden sm:inline">
+          <span className="font-display text-sm font-extrabold tracking-tight text-foreground">
             Ocean Risk Monitor
           </span>
         </div>
@@ -33,8 +31,7 @@ export default function Navbar() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <span>{item.icon}</span>
-                <span className="hidden md:inline">{item.label}</span>
+                <span className="inline">{item.label}</span>
               </span>
               {active && (
                 <motion.div

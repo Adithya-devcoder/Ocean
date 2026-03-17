@@ -8,7 +8,6 @@ import CoralReefs from "@/pages/CoralReefs";
 import Biodiversity from "@/pages/Biodiversity";
 import Pollution from "@/pages/Pollution";
 import ClimateImpact from "@/pages/ClimateImpact";
-import MarineSpecies from "@/pages/MarineSpecies";
 import About from "@/pages/About";
 import NotFound from "@/pages/NotFound";
 
@@ -27,7 +26,6 @@ const App = () => (
             <Route path="/biodiversity" element={<Biodiversity />} />
             <Route path="/pollution" element={<Pollution />} />
             <Route path="/climate-impact" element={<ClimateImpact />} />
-            <Route path="/marine-species" element={<MarineSpecies />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

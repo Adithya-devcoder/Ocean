@@ -15,7 +15,7 @@ interface Props {
 export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }: Props) {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; station: LiveStation } | null>(null);
 
-  const onHover = useCallback((info: any) => {
+  const onHover = useCallback((info: { x: number; y: number; object?: LiveStation }) => {
     if (info.object) {
       setTooltip({ x: info.x, y: info.y, station: info.object });
     } else {

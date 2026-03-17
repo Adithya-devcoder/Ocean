@@ -3,16 +3,15 @@ import type { OceanFilters } from "@/hooks/useOceanData";
 interface Props {
   filters: OceanFilters;
   onChange: (f: OceanFilters) => void;
-  countdown: number;
 }
 
-export default function ControlPanel({ filters, onChange, countdown }: Props) {
+export default function ControlPanel({ filters, onChange }: Props) {
   const set = (partial: Partial<OceanFilters>) => onChange({ ...filters, ...partial });
 
   return (
     <div className="rounded-xl border border-border bg-card p-4 mb-4">
       <p className="font-mono text-[10px] tracking-[2px] text-primary uppercase mb-3">⚙ Controls</p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Mode */}
         <div>
           <Label>Mode</Label>
@@ -65,14 +64,6 @@ export default function ControlPanel({ filters, onChange, countdown }: Props) {
               onChange={(e) => set({ maxScore: +e.target.value })}
               className="w-14 rounded border border-border bg-muted px-2 py-1 font-mono text-xs text-foreground"
             />
-          </div>
-        </div>
-        {/* Countdown */}
-        <div>
-          <Label>Next Refresh</Label>
-          <div className="mt-1">
-            <span className="font-display text-3xl font-extrabold text-foreground">{countdown}s</span>
-            <p className="font-mono text-[10px] tracking-[1px] text-primary">UNTIL UPDATE</p>
           </div>
         </div>
       </div>
