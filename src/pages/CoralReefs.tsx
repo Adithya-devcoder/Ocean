@@ -27,7 +27,7 @@ export default function CoralReefs() {
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-6">
-      <PageHeader icon="🪸" title="Coral Reef Intelligence" subtitle="Bleaching risk · Health indicators · Monitoring" />
+      <PageHeader title="Coral Reef Intelligence" subtitle="Bleaching risk · Health indicators · Monitoring" />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <Stat label="Monitored Reefs" value={coralStations.length} />
@@ -80,11 +80,11 @@ export default function CoralReefs() {
 }
 
 // Shared sub-page components
-export function PageHeader({ icon, title, subtitle }: { icon: string; title: string; subtitle: string }) {
+export function PageHeader({ title, subtitle }: {title: string; subtitle: string }) {
   return (
     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
       <h1 className="font-display text-2xl font-extrabold text-foreground sm:text-3xl">
-        {icon} {title}
+        {title}
       </h1>
       <p className="mt-1 font-mono text-[10px] tracking-[2.5px] text-muted-foreground uppercase">{subtitle}</p>
     </motion.div>

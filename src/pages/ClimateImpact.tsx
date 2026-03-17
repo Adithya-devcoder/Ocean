@@ -24,7 +24,7 @@ export default function ClimateImpact() {
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-6">
-      <PageHeader icon="🌡" title="Climate Impact Analysis" subtitle="Temperature changes · Ecosystem vulnerability · Sea level trends" />
+      <PageHeader title="Climate Impact Analysis" subtitle="Temperature changes · Ecosystem vulnerability · Sea level trends" />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <Stat label="Avg Ocean Temp" value="15.2°C" color="text-accent" />
