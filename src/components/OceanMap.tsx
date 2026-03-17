@@ -1,10 +1,11 @@
 import { useMemo, useState, useCallback } from "react";
-import Map from "react-map-gl/maplibre";
+import Map, { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import maplibregl from "maplibre-gl";
 import { DeckGLOverlay } from "./DeckGLOverlay";
 import { ScatterplotLayer, ColumnLayer } from "deck.gl";
 import type { LiveStation } from "@/data/stations";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { useToast } from "@/hooks/use-toast";
 
 interface Props {
   stations: LiveStation[];
@@ -14,6 +15,7 @@ interface Props {
 
 export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }: Props) {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; station: LiveStation } | null>(null);
+  const { toast } = useToast();
 
   const onHover = useCallback((info: { x: number; y: number; object?: LiveStation }) => {
     if (info.object) {
@@ -22,6 +24,43 @@ export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }:
       setTooltip(null);
     }
   }, []);
+
+  const handleMapClick = useCallback(async (event: MapLayerMouseEvent) => {
+    const { lng, lat } = event.lngLat;
+    console.log(`Map clicked at: ${lat}, ${lng}`);
+
+    try {
+      // Sending to backend (adjust URL as needed)
+      // I prefer using a simple POST request to a REST API
+      const response = await fetch("http://localhost:5000/api/map-click", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          latitude: lat, 
+          longitude: lng,
+          timestamp: new Date().toISOString()
+        }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Coordinates Sent",
+          description: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)} successfully sent to backend.`,
+        });
+      } else {
+        throw new Error("Failed to send coordinates");
+      }
+    } catch (error) {
+      console.error("Error sending coordinates:", error);
+      toast({
+        title: "Connection Error",
+        description: "Could not reach the backend API. Please ensure your backend is running at http://localhost:5000",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
 
   const layers = useMemo(() => {
     const scatter = new ScatterplotLayer({
@@ -69,6 +108,7 @@ export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }:
           pitch,
           bearing: -5,
         }}
+        onClick={handleMapClick}
         mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
         style={{ width: "100%", height: "100%" }}
         renderWorldCopies={false}
