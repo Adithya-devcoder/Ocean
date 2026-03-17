@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart,
@@ -51,6 +51,19 @@ export default function Pollution() {
     chemical: Math.round(15 + Math.random() * 10),
   }));
 
+  const effectsScaleImage = `data:image/svg+xml,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="350" height="25">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#a70000aa" />
+          <stop offset="50%" stop-color="#ffff00d2" />
+          <stop offset="100%" stop-color="#118711c3" />
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="350" height="25" rx="12" fill="url(#g)" />
+    </svg>
+  `)}`;
+
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-6 bg-[#020817] min-h-screen text-slate-50">
       <PageHeader
@@ -69,19 +82,25 @@ export default function Pollution() {
         <PollutionStat
           label="Pollution Zones"
           value="4"
-          icon="📍"
+          // icon="📍"
           glowColor="rgba(0, 224, 255, 0.3)"
           delay={0.2}
         />
         <PollutionStat
-          label="Global Pollution Index"
+          label="Average Pollution Percentage"
           value="64%"
           glowColor="rgba(0, 255, 136, 0.3)"
           delay={0.3}
         />
         <PollutionStat
-          label="Active Oil Spills"
-          value="2"
+          label="Effects Scale"
+          value={
+            <img
+              src={effectsScaleImage}
+              alt="Effects scale"
+              className="h-10 w-full max-w-[140px] object-contain"
+            />
+          }
           glowColor="rgba(255, 214, 0, 0.3)"
           delay={0.4}
         />
@@ -254,7 +273,7 @@ function PollutionStat({
   delay = 0,
 }: {
   label: string;
-  value: string;
+  value: ReactNode;
   icon?: string;
   glowColor: string;
   delay?: number;
