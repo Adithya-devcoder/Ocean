@@ -54,9 +54,9 @@ export default function Pollution() {
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-6 bg-[#020817] min-h-screen text-slate-50">
       <PageHeader
-        icon="🏭"
+        // icon="🏭"
         title="Pollution Monitor"
-        subtitle="Ocean pollution hotspots · Chemical indicators · Risk mapping"
+        subtitle="Pollution Hotspots · Pollution Trends · Monitoring Stations"
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
