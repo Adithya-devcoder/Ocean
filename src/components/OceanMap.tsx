@@ -18,6 +18,7 @@ export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }:
   const { toast } = useToast();
 
   const onHover = useCallback((info: { x: number; y: number; object?: LiveStation }) => {
+    // console.log("Map hovered", info.object?.name); // Debugging
     if (info.object) {
       setTooltip({ x: info.x, y: info.y, station: info.object });
     } else {
@@ -26,12 +27,14 @@ export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }:
   }, []);
 
   const handleMapClick = useCallback(async (event: MapLayerMouseEvent) => {
+    // Only trigger if it's a real click event and NOT a hover or drag
+    if (event.type !== "click") return;
+
     const { lng, lat } = event.lngLat;
-    console.log(`Map clicked at: ${lat}, ${lng}`);
+    console.log(`✅ User deliberately clicked the map at Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`);
 
     try {
       // Sending to backend (adjust URL as needed)
-      // I prefer using a simple POST request to a REST API
       const response = await fetch("http://localhost:5000/api/map-click", {
         method: "POST",
         headers: {
@@ -53,10 +56,11 @@ export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }:
         throw new Error("Failed to send coordinates");
       }
     } catch (error) {
-      console.error("Error sending coordinates:", error);
+      console.error("❌ Error sending coordinates:", error);
+      // We'll use a shorter description to make it less intrusive
       toast({
         title: "Connection Error",
-        description: "Could not reach the backend API. Please ensure your backend is running at http://localhost:5000",
+        description: "Backend (localhost:5000) is unreachable. Check your server.",
         variant: "destructive",
       });
     }
