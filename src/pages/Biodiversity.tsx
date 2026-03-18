@@ -1,28 +1,15 @@
 import React from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, AreaChart, Area } from "recharts";
 import { useOceanData } from "@/hooks/useOceanData";
+import { categorizeStation } from "@/data/stations";
 import { PageHeader, Stat, ChartCard, StationList } from "./CoralReefs";
 
 export default function Biodiversity() {
   const { allStations } = useOceanData();
 
   // Apply specific logic for Biodiversity page:
-  // if 1<=score<50 : critical
-  // 50<=score<85:moderate
-  // 85<=score:healthy
   const stations = allStations.map(s => {
-    let category: "CRITICAL" | "MODERATE" | "HEALTHY";
-    let color: [number, number, number];
-    if (s.score < 50) {
-      category = "CRITICAL";
-      color = [220, 50, 50];
-    } else if (s.score < 85) {
-      category = "MODERATE";
-      color = [255, 140, 0];
-    } else {
-      category = "HEALTHY";
-      color = [50, 200, 100];
-    }
+    const { category, color } = categorizeStation(s.score, 'biodiversity');
     return { ...s, category, color };
   });
   const bioStations = stations.filter((s) =>
@@ -71,7 +58,7 @@ export default function Biodiversity() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <ChartCard title="Species Diversity by Region">
+        <ChartCard title="Salinity by Region">
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={diversityIndex.slice(0, 10)}>
               <XAxis dataKey="name" tick={{ fill: "#9CA3AF", fontSize: 10 }} />

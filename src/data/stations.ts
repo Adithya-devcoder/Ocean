@@ -46,23 +46,25 @@ export interface LiveStation {
   color?: [number, number, number];
 }
 
+export function categorizeStation(score: number, type: 'pollution' | 'biodiversity' | 'coral' | 'dashboard' = 'dashboard'): { category: RiskCategory, color: [number, number, number] } {
+  if (type === 'biodiversity') {
+    if (score < 50) return { category: "CRITICAL", color: [220, 50, 50] };
+    if (score < 85) return { category: "MODERATE", color: [255, 140, 0] };
+    return { category: "HEALTHY", color: [50, 200, 100] };
+  }
+  // Default logic for dashboard, pollution, and coral pages
+  if (score < 40) return { category: "CRITICAL", color: [220, 50, 50] };
+  if (score < 80) return { category: "MODERATE", color: [255, 140, 0] };
+  return { category: "HEALTHY", color: [50, 200, 100] };
+}
+
 export function generateLiveData(noise = 4): LiveStation[] {
   return BASE_STATIONS.map((s) => {
     const score = Math.max(5, Math.min(95, s.baseScore + (Math.random() * 2 - 1) * noise));
     const riskPct = Math.round((100 - score) * 10) / 10;
     const radius = Math.round((100 - score) * 1800);
-    let color: [number, number, number];
-    let category: RiskCategory;
-    if (score < 40) {
-      color = [220, 50, 50];
-      category = "CRITICAL";
-    } else if (score < 65) {
-      color = [255, 140, 0];
-      category = "MODERATE";
-    } else {
-      color = [50, 200, 100];
-      category = "HEALTHY";
-    }
+    const { category, color } = categorizeStation(score);
+    
     return {
       name: s.name,
       lat: s.lat,

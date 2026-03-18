@@ -1,8 +1,9 @@
 import { useMemo, useState, useCallback } from "react";
-import Map, { MapLayerMouseEvent } from "react-map-gl/maplibre";
+import Map, { MapLayerMouseEvent, Popup } from "react-map-gl/maplibre";
 import maplibregl from "maplibre-gl";
 import { DeckGLOverlay } from "./DeckGLOverlay";
 import { ScatterplotLayer, ColumnLayer } from "deck.gl";
+import { HeatmapLayer } from "@deck.gl/aggregation-layers";
 import type { LiveStation } from "@/data/stations";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useToast } from "@/hooks/use-toast";
@@ -11,9 +12,11 @@ interface Props {
   stations: LiveStation[];
   pitch: number;
   showHeatmap: boolean;
+  clickedLocation: { lat: number; lng: number } | null;
+  onMapClick: (location: { lat: number; lng: number } | null) => void;
 }
 
-export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }: Props) {
+export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap, clickedLocation, onMapClick }: Props) {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; station: LiveStation } | null>(null);
   const { toast } = useToast();
 
@@ -32,10 +35,11 @@ export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }:
 
     const { lng, lat } = event.lngLat;
     console.log(`✅ User deliberately clicked the map at Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`);
+    onMapClick({ lat, lng });
 
     try {
       // Sending to backend (adjust URL as needed)
-      const response = await fetch("http://localhost:5000/api/map-click", {
+      const response = await fetch("http://localhost:5001/api/map-click", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,8 +76,8 @@ export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }:
       data: stations,
       getPosition: (d: LiveStation) => [d.lon, d.lat],
       getRadius: (d: LiveStation) => d.radius,
-      getFillColor: (d: LiveStation) => [...d.color, 60],
-      getLineColor: (d: LiveStation) => [...d.color, 200],
+      getFillColor: (d: LiveStation) => [...(d.color || [255, 255, 255]), 60],
+      getLineColor: (d: LiveStation) => [...(d.color || [255, 255, 255]), 200],
       stroked: true,
       filled: true,
       lineWidthMinPixels: 2,
@@ -88,15 +92,36 @@ export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }:
       getPosition: (d: LiveStation) => [d.lon, d.lat],
       getElevation: (d: LiveStation) => d.elevation,
       radius: 35000,
-      getFillColor: (d: LiveStation) => [...d.color, 210],
+      getFillColor: (d: LiveStation) => [...(d.color || [255, 255, 255]), 210],
       pickable: true,
       extruded: true,
       autoHighlight: true,
       onHover,
     });
 
-    return [scatter, columns];
-  }, [stations, onHover]);
+    const heatmap = _showHeatmap ? new HeatmapLayer({
+      id: "heatmap",
+      data: stations,
+      getPosition: (d: LiveStation) => [d.lon, d.lat],
+      getWeight: (d: LiveStation) => 100 - d.score,
+      radiusPixels: 60,
+      intensity: 1,
+      threshold: 0.05,
+    }) : null;
+    const clickRadiusLayer = clickedLocation ? new ScatterplotLayer({
+      id: "clicked-radius",
+      data: [{ ...clickedLocation }],
+      getPosition: (d: { lat: number; lng: number }) => [d.lng, d.lat],
+      getRadius: 1609.34, // 1 mile in meters
+      getFillColor: [0, 224, 255, 80], // Cyan transparent
+      getLineColor: [0, 224, 255, 200],
+      stroked: true,
+      filled: true,
+      lineWidthMinPixels: 2,
+    }) : null;
+
+    return [_showHeatmap ? heatmap : null, scatter, !_showHeatmap ? columns : null, clickRadiusLayer].filter(Boolean);
+  }, [stations, onHover, clickedLocation, _showHeatmap]);
 
   return (
     <div className="relative mb-4 overflow-hidden rounded-xl border border-border" style={{ height: 500 }}>
@@ -118,13 +143,35 @@ export default function OceanMap({ stations, pitch, showHeatmap: _showHeatmap }:
         renderWorldCopies={false}
       >
         <DeckGLOverlay layers={layers} />
+        {clickedLocation && (
+          <Popup
+            latitude={clickedLocation.lat}
+            longitude={clickedLocation.lng}
+            closeButton={true}
+            closeOnClick={false}
+            onClose={() => onMapClick(null)}
+            anchor="bottom"
+            offset={10}
+          >
+            <div className="rounded border border-slate-700 bg-slate-900 p-2 shadow-lg w-48 z-auto opacity-100 backdrop-blur-md">
+              <p className="font-mono text-xs font-bold text-cyan-400 mb-1 border-b border-slate-700 pb-1">
+                📍 Region Selected
+              </p>
+              <div className="font-mono text-[10px] text-slate-300">
+                <p>Lat: <span className="font-bold text-slate-100">{clickedLocation.lat.toFixed(4)}</span></p>
+                <p>Lng: <span className="font-bold text-slate-100">{clickedLocation.lng.toFixed(4)}</span></p>
+                <p className="mt-1 text-cyan-300 opacity-80 border-t border-slate-700 pt-1">⭕ 1-mile radius isolated</p>
+              </div>
+            </div>
+          </Popup>
+        )}
       </Map>
       {tooltip && (
         <div
           className="pointer-events-none absolute z-20 rounded-lg border bg-card p-3 shadow-lg"
-          style={{ left: tooltip.x + 10, top: tooltip.y + 10, borderLeftColor: `rgb(${tooltip.station.color.join(",")})`, borderLeftWidth: 3 }}
+          style={{ left: tooltip.x + 10, top: tooltip.y + 10, borderLeftColor: `rgb(${(tooltip.station.color || [255, 255, 255]).join(",")})`, borderLeftWidth: 3 }}
         >
-          <p className="font-mono text-[11px] font-bold" style={{ color: `rgb(${tooltip.station.color.join(",")})` }}>
+          <p className="font-mono text-[11px] font-bold" style={{ color: `rgb(${(tooltip.station.color || [255, 255, 255]).join(",")})` }}>
             {tooltip.station.category}
           </p>
           <p className="font-mono text-xs text-foreground font-bold">{tooltip.station.name}</p>

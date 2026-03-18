@@ -7,30 +7,18 @@ export default function ClimateImpact() {
   const { allStations: stations } = useOceanData();
 
   const tempData = [
-    { month: "2023-01", temp: 14.6, anomaly: 0.25 },
-    { month: "2023-02", temp: 14.7, anomaly: 0.28 },
-    { month: "2023-03", temp: 14.8, anomaly: 0.32 },
-    { month: "2023-04", temp: 14.9, anomaly: 0.35 },
-    { month: "2023-05", temp: 15.1, anomaly: 0.40 },
-    { month: "2023-06", temp: 15.3, anomaly: 0.45 },
-    { month: "2023-07", temp: 15.5, anomaly: 0.52 },
-    { month: "2023-08", temp: 15.6, anomaly: 0.58 },
-    { month: "2023-09", temp: 15.4, anomaly: 0.50 },
-    { month: "2023-10", temp: 15.2, anomaly: 0.42 },
-    { month: "2023-11", temp: 15.0, anomaly: 0.36 },
-    { month: "2023-12", temp: 14.8, anomaly: 0.30 },
-    { month: "2024-01", temp: 14.9, anomaly: 0.34 },
-    { month: "2024-02", temp: 15.0, anomaly: 0.38 },
-    { month: "2024-03", temp: 15.2, anomaly: 0.44 },
-    { month: "2024-04", temp: 15.4, anomaly: 0.48 },
-    { month: "2024-05", temp: 15.6, anomaly: 0.55 },
-    { month: "2024-06", temp: 15.8, anomaly: 0.62 },
-    { month: "2024-07", temp: 16.1, anomaly: 0.70 },
-    { month: "2024-08", temp: 16.3, anomaly: 0.78 },
-    { month: "2024-09", temp: 16.0, anomaly: 0.68 },
-    { month: "2024-10", temp: 15.7, anomaly: 0.56 },
-    { month: "2024-11", temp: 15.4, anomaly: 0.48 },
-    { month: "2024-12", temp: 15.2, anomaly: 0.42 },
+    { month: "2021-Jan", temp: 13.2, anomaly: 0.12 },
+    { month: "2021-Jul", temp: 15.8, anomaly: 0.45 },
+    { month: "2022-Jan", temp: 14.1, anomaly: 0.22 },
+    { month: "2022-Jul", temp: 16.4, anomaly: 0.58 },
+    { month: "2023-Jan", temp: 13.8, anomaly: 0.28 },
+    { month: "2023-Jul", temp: 15.9, anomaly: 0.52 },
+    { month: "2024-Jan", temp: 14.5, anomaly: 0.41 },
+    { month: "2024-Jul", temp: 18.2, anomaly: 1.15 },
+    { month: "2025-Jan", temp: 15.1, anomaly: 0.62 },
+    { month: "2025-Jul", temp: 17.5, anomaly: 0.98 },
+    { month: "2026-Jan", temp: 16.2, anomaly: 0.84 },
+    { month: "2026-Jul", temp: 19.8, anomaly: 1.72 },
   ];
 
   const vulnData = [
@@ -71,10 +59,10 @@ export default function ClimateImpact() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <ChartCard title="Ocean Temperature Trend (24 Months)">
+        <ChartCard title="Ocean Temperature Trend (2021 - 2026)">
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={tempData}>
-              <XAxis dataKey="month" tick={{ fill: "#9CA3AF", fontSize: 9 }} interval={3} />
+              <XAxis dataKey="month" tick={{ fill: "#9CA3AF", fontSize: 9 }} interval={0} />
               <YAxis tick={{ fill: "#9CA3AF", fontSize: 10 }} domain={["auto", "auto"]} />
               <Tooltip />
               <Line type="monotone" dataKey="temp" stroke="#22D3EE" strokeWidth={2} dot={false} />

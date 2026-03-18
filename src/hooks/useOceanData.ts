@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { generateLiveData, LiveStation, RiskCategory } from "@/data/stations";
+import { generateLiveData, LiveStation, RiskCategory, categorizeStation } from "@/data/stations";
+
+export interface MLData {
+  temperature: number | null;
+  currents: number | null;
+  pH: number | null;
+  oxygen: number | null;
+  salinity: number | null;
+  heavy_metals: number | null;
+}
 
 export interface OceanFilters {
   liveMode: boolean;
@@ -29,17 +38,26 @@ const DEFAULT_FILTERS: OceanFilters = {
 export function useOceanData() {
   const [filters, setFilters] = useState<OceanFilters>(DEFAULT_FILTERS);
   
-  const { data: allStations = [], refetch } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ['oceanData'],
     queryFn: async () => {
       const res = await fetch("http://localhost:5001/api/ocean-data");
       if (!res.ok) throw new Error("Network response was not ok");
       const json = await res.json();
-      return json.frontend.stations as LiveStation[];
+      const rawStations = json.frontend.stations as LiveStation[];
+      // Enrich backend data with frontend categorization
+      const stations = rawStations.map(s => {
+        const { category, color } = categorizeStation(s.score);
+        return { ...s, category, color };
+      });
+      return { stations, mlData: json.ml_data as MLData };
     },
     refetchInterval: filters.liveMode ? filters.refreshSec * 1000 : false,
-    initialData: () => generateLiveData(4)
+    initialData: { stations: generateLiveData(4), mlData: { temperature: 21, currents: 0.5, pH: 8.1, oxygen: 6.5, salinity: 35, heavy_metals: 0.02 } }
   });
+
+  const allStations = data?.stations || [];
+  const mlData = data?.mlData;
 
   const cats: RiskCategory[] = [];
   if (filters.showCritical) cats.push("CRITICAL");
@@ -63,5 +81,5 @@ export function useOceanData() {
       : 0,
   };
 
-  return { filters, setFilters, stations: filtered, allStations, metrics, refresh: refetch };
+  return { filters, setFilters, stations: filtered, allStations, mlData, metrics, refresh: refetch };
 }

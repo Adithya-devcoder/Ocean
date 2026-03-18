@@ -16,6 +16,7 @@ import {
   Area,
 } from "recharts";
 import { useOceanData } from "@/hooks/useOceanData";
+import { categorizeStation } from "@/data/stations";
 import { PageHeader, StationList } from "./CoralReefs";
 
 const POLLUTION_COLORS = {
@@ -29,22 +30,8 @@ export default function Pollution() {
   const { allStations } = useOceanData();
   
   // Apply specific logic for Pollution page:
-  // if score < 40 : critical
-  // 40<=score<80:moderate
-  // 80<=score:healthy
   const stations = allStations.map(s => {
-    let category: "CRITICAL" | "MODERATE" | "HEALTHY";
-    let color: [number, number, number];
-    if (s.score < 40) {
-      category = "CRITICAL";
-      color = [220, 50, 50];
-    } else if (s.score < 80) {
-      category = "MODERATE";
-      color = [255, 140, 0];
-    } else {
-      category = "HEALTHY";
-      color = [50, 200, 100];
-    }
+    const { category, color } = categorizeStation(s.score, 'pollution');
     return { ...s, category, color };
   });
 
