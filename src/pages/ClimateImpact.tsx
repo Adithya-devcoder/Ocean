@@ -1,26 +1,63 @@
-import { useMemo } from "react";
+import React from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from "recharts";
-import { generateLiveData } from "@/data/stations";
+import { useOceanData } from "@/hooks/useOceanData";
 import { PageHeader, Stat, ChartCard, StationList } from "./CoralReefs";
 
 export default function ClimateImpact() {
-  const stations = useMemo(() => generateLiveData(4), []);
+  const { allStations: stations } = useOceanData();
 
-  const tempData = Array.from({ length: 24 }, (_, i) => ({
-    month: `${2023 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, "0")}`,
-    temp: +(14.5 + i * 0.05 + Math.random() * 0.5).toFixed(2),
-    anomaly: +(0.2 + i * 0.02 + Math.random() * 0.3).toFixed(2),
-  }));
+  const tempData = [
+    { month: "2023-01", temp: 14.6, anomaly: 0.25 },
+    { month: "2023-02", temp: 14.7, anomaly: 0.28 },
+    { month: "2023-03", temp: 14.8, anomaly: 0.32 },
+    { month: "2023-04", temp: 14.9, anomaly: 0.35 },
+    { month: "2023-05", temp: 15.1, anomaly: 0.40 },
+    { month: "2023-06", temp: 15.3, anomaly: 0.45 },
+    { month: "2023-07", temp: 15.5, anomaly: 0.52 },
+    { month: "2023-08", temp: 15.6, anomaly: 0.58 },
+    { month: "2023-09", temp: 15.4, anomaly: 0.50 },
+    { month: "2023-10", temp: 15.2, anomaly: 0.42 },
+    { month: "2023-11", temp: 15.0, anomaly: 0.36 },
+    { month: "2023-12", temp: 14.8, anomaly: 0.30 },
+    { month: "2024-01", temp: 14.9, anomaly: 0.34 },
+    { month: "2024-02", temp: 15.0, anomaly: 0.38 },
+    { month: "2024-03", temp: 15.2, anomaly: 0.44 },
+    { month: "2024-04", temp: 15.4, anomaly: 0.48 },
+    { month: "2024-05", temp: 15.6, anomaly: 0.55 },
+    { month: "2024-06", temp: 15.8, anomaly: 0.62 },
+    { month: "2024-07", temp: 16.1, anomaly: 0.70 },
+    { month: "2024-08", temp: 16.3, anomaly: 0.78 },
+    { month: "2024-09", temp: 16.0, anomaly: 0.68 },
+    { month: "2024-10", temp: 15.7, anomaly: 0.56 },
+    { month: "2024-11", temp: 15.4, anomaly: 0.48 },
+    { month: "2024-12", temp: 15.2, anomaly: 0.42 },
+  ];
 
-  const vulnData = stations.slice(0, 8).map((s) => ({
-    name: s.name.slice(0, 12),
-    vulnerability: Math.round(100 - s.score + Math.random() * 10),
-  }));
+  const vulnData = [
+    { name: "Great Barrie", vulnerability: 78 },
+    { name: "Great Barrie", vulnerability: 71 },
+    { name: "Caribbean - ", vulnerability: 65 },
+    { name: "Bay of Benga", vulnerability: 69 },
+    { name: "Gulf of Mexi", vulnerability: 82 },
+    { name: "Red Sea", vulnerability: 45 },
+    { name: "Coral Triang", vulnerability: 74 },
+    { name: "Mediterranea", vulnerability: 48 },
+  ];
 
-  const seaLevel = Array.from({ length: 12 }, (_, i) => ({
-    month: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][i],
-    rise: +(3.2 + i * 0.1 + Math.random() * 0.5).toFixed(1),
-  }));
+  const seaLevel = [
+    { month: "Jan", rise: 3.2 },
+    { month: "Feb", rise: 3.3 },
+    { month: "Mar", rise: 3.4 },
+    { month: "Apr", rise: 3.6 },
+    { month: "May", rise: 3.8 },
+    { month: "Jun", rise: 4.1 },
+    { month: "Jul", rise: 4.4 },
+    { month: "Aug", rise: 4.6 },
+    { month: "Sep", rise: 4.3 },
+    { month: "Oct", rise: 4.0 },
+    { month: "Nov", rise: 3.7 },
+    { month: "Dec", rise: 3.5 },
+  ];
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-6">

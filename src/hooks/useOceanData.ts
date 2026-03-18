@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { generateLiveData, LiveStation, RiskCategory } from "@/data/stations";
 
 export interface OceanFilters {
@@ -21,29 +22,24 @@ const DEFAULT_FILTERS: OceanFilters = {
   showHealthy: true,
   minScore: 0,
   maxScore: 100,
-  refreshSec: 15,
+  refreshSec: 20,
   pitch: 45,
 };
 
 export function useOceanData() {
   const [filters, setFilters] = useState<OceanFilters>(DEFAULT_FILTERS);
-  const [allStations, setAllStations] = useState<LiveStation[]>(() => generateLiveData(4));
-  const intervalRef = useRef<ReturnType<typeof setInterval>>();
-
-  const refresh = useCallback(() => {
-    setAllStations(generateLiveData(filters.liveMode ? 4 : 0));
-  }, [filters.liveMode]);
-
-  useEffect(() => {
-    if (!filters.liveMode) {
-      clearInterval(intervalRef.current);
-      return;
-    }
-    intervalRef.current = setInterval(() => {
-      setAllStations(generateLiveData(4));
-    }, filters.refreshSec * 1000);
-    return () => clearInterval(intervalRef.current);
-  }, [filters.liveMode, filters.refreshSec]);
+  
+  const { data: allStations = [], refetch } = useQuery({
+    queryKey: ['oceanData'],
+    queryFn: async () => {
+      const res = await fetch("http://localhost:5001/api/ocean-data");
+      if (!res.ok) throw new Error("Network response was not ok");
+      const json = await res.json();
+      return json.frontend.stations as LiveStation[];
+    },
+    refetchInterval: filters.liveMode ? filters.refreshSec * 1000 : false,
+    initialData: () => generateLiveData(4)
+  });
 
   const cats: RiskCategory[] = [];
   if (filters.showCritical) cats.push("CRITICAL");
@@ -67,5 +63,5 @@ export function useOceanData() {
       : 0,
   };
 
-  return { filters, setFilters, stations: filtered, allStations, metrics, refresh };
+  return { filters, setFilters, stations: filtered, allStations, metrics, refresh: refetch };
 }

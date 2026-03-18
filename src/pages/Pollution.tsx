@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart,
@@ -15,7 +15,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { generateLiveData } from "@/data/stations";
+import { useOceanData } from "@/hooks/useOceanData";
 import { PageHeader, StationList } from "./CoralReefs";
 
 const POLLUTION_COLORS = {
@@ -26,7 +26,28 @@ const POLLUTION_COLORS = {
 };
 
 export default function Pollution() {
-  const stations = useMemo(() => generateLiveData(4), []);
+  const { allStations } = useOceanData();
+  
+  // Apply specific logic for Pollution page:
+  // if score < 40 : critical
+  // 40<=score<80:moderate
+  // 80<=score:healthy
+  const stations = allStations.map(s => {
+    let category: "CRITICAL" | "MODERATE" | "HEALTHY";
+    let color: [number, number, number];
+    if (s.score < 40) {
+      category = "CRITICAL";
+      color = [220, 50, 50];
+    } else if (s.score < 80) {
+      category = "MODERATE";
+      color = [255, 140, 0];
+    } else {
+      category = "HEALTHY";
+      color = [50, 200, 100];
+    }
+    return { ...s, category, color };
+  });
+
   const pollStations = stations.slice(0, 4); // Fixed to 4 zones as per requirement
 
   const pollutionTypes = [
@@ -44,12 +65,20 @@ export default function Pollution() {
     { name: "Bay of Bengal", level: 45 },
   ];
 
-  const trend = Array.from({ length: 12 }, (_, i) => ({
-    month: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i],
-    plastic: Math.round(40 + Math.random() * 20),
-    nutrient: Math.round(20 + Math.random() * 15),
-    chemical: Math.round(15 + Math.random() * 10),
-  }));
+  const trend = [
+    { month: "Jan", plastic: 45, nutrient: 30, chemical: 20 },
+    { month: "Feb", plastic: 48, nutrient: 32, chemical: 22 },
+    { month: "Mar", plastic: 52, nutrient: 28, chemical: 25 },
+    { month: "Apr", plastic: 49, nutrient: 35, chemical: 24 },
+    { month: "May", plastic: 55, nutrient: 31, chemical: 23 },
+    { month: "Jun", plastic: 58, nutrient: 34, chemical: 20 },
+    { month: "Jul", plastic: 54, nutrient: 29, chemical: 26 },
+    { month: "Aug", plastic: 60, nutrient: 27, chemical: 28 },
+    { month: "Sep", plastic: 57, nutrient: 32, chemical: 24 },
+    { month: "Oct", plastic: 53, nutrient: 36, chemical: 21 },
+    { month: "Nov", plastic: 50, nutrient: 33, chemical: 19 },
+    { month: "Dec", plastic: 47, nutrient: 28, chemical: 18 },
+  ];
 
   const effectsScaleImage = `data:image/svg+xml,${encodeURIComponent(`
     <svg xmlns="http://www.w3.org/2000/svg" width="350" height="25">
@@ -191,7 +220,7 @@ export default function Pollution() {
         </PollutionChartCard>
       </div>
 
-      <PollutionChartCard title="Pollution Trends (Wave Graph)">
+      <PollutionChartCard title="Pollution Trends">
         <ResponsiveContainer width="100%" height={350}>
           <AreaChart data={trend} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <defs>

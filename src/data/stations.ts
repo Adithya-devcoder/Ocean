@@ -41,9 +41,9 @@ export interface LiveStation {
   riskPct: number;
   radius: number;
   elevation: number;
-  category: RiskCategory;
+  category?: RiskCategory;
   region: string;
-  color: [number, number, number];
+  color?: [number, number, number];
 }
 
 export function generateLiveData(noise = 4): LiveStation[] {

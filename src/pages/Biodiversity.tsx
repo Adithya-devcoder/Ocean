@@ -1,10 +1,30 @@
-import { useMemo } from "react";
+import React from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, AreaChart, Area } from "recharts";
-import { generateLiveData } from "@/data/stations";
+import { useOceanData } from "@/hooks/useOceanData";
 import { PageHeader, Stat, ChartCard, StationList } from "./CoralReefs";
 
 export default function Biodiversity() {
-  const stations = useMemo(() => generateLiveData(4), []);
+  const { allStations } = useOceanData();
+
+  // Apply specific logic for Biodiversity page:
+  // if 1<=score<50 : critical
+  // 50<=score<85:moderate
+  // 85<=score:healthy
+  const stations = allStations.map(s => {
+    let category: "CRITICAL" | "MODERATE" | "HEALTHY";
+    let color: [number, number, number];
+    if (s.score < 50) {
+      category = "CRITICAL";
+      color = [220, 50, 50];
+    } else if (s.score < 85) {
+      category = "MODERATE";
+      color = [255, 140, 0];
+    } else {
+      category = "HEALTHY";
+      color = [50, 200, 100];
+    }
+    return { ...s, category, color };
+  });
   const bioStations = stations.filter((s) =>
     ["Biodiversity Loss", "Species Loss", "Species Migration", "Overfishing"].includes(s.risk)
   );
@@ -24,14 +44,24 @@ export default function Biodiversity() {
     { subject: "Invertebrates", A: 71, fullMark: 100 },
   ];
 
-  const trend = Array.from({ length: 12 }, (_, i) => ({
-    month: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][i],
-    index: Math.round(55 + Math.sin(i / 2) * 15 + Math.random() * 10),
-  }));
+  const trend = [
+    { month: "Jan", index: 59 },
+    { month: "Feb", index: 62 },
+    { month: "Mar", index: 70 },
+    { month: "Apr", index: 76 },
+    { month: "May", index: 73 },
+    { month: "Jun", index: 68 },
+    { month: "Jul", index: 57 },
+    { month: "Aug", index: 51 },
+    { month: "Sep", index: 54 },
+    { month: "Oct", index: 61 },
+    { month: "Nov", index: 69 },
+    { month: "Dec", index: 72 },
+  ];
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-6">
-      <PageHeader icon="🐠" title="Biodiversity Analysis" subtitle="Species diversity · Ecosystem health · Hotspot mapping" />
+      <PageHeader title="Biodiversity Analysis" subtitle="Species diversity · Ecosystem health · Hotspot mapping" />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <Stat label="Risk Regions" value={bioStations.length} />

@@ -1,12 +1,34 @@
-import { useMemo } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
-import { generateLiveData } from "@/data/stations";
+import { useOceanData } from "@/hooks/useOceanData";
+import { generateLiveData } from "@/data/stations"; // Kept for the return type of StationList
 
 const COLORS = { critical: "#EF4444", moderate: "#F59E0B", healthy: "#22C55E" };
 
 export default function CoralReefs() {
-  const stations = useMemo(() => generateLiveData(4), []);
+  const { allStations } = useOceanData();
+
+  // Apply specific logic for CoralReefs page:
+  // if 1<=score < 40 : critical
+  // 40<=score<80:moderate
+  // 80<=score:healthy
+  const stations = allStations.map(s => {
+    let category: "CRITICAL" | "MODERATE" | "HEALTHY";
+    let color: [number, number, number];
+    if (s.score < 40) {
+      category = "CRITICAL";
+      color = [220, 50, 50];
+    } else if (s.score < 80) {
+      category = "MODERATE";
+      color = [255, 140, 0];
+    } else {
+      category = "HEALTHY";
+      color = [50, 200, 100];
+    }
+    return { ...s, category, color };
+  });
+
   const coralStations = stations.filter((s) =>
     ["Coral Bleaching", "Bleaching Risk", "Thermal Stress", "Species Loss"].includes(s.risk)
   );
@@ -19,11 +41,20 @@ export default function CoralReefs() {
     { name: "Healthy", value: coralStations.filter((s) => s.category === "HEALTHY").length, fill: COLORS.healthy },
   ];
 
-  const trendData = Array.from({ length: 12 }, (_, i) => ({
-    month: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][i],
-    bleaching: Math.round(30 + Math.random() * 40),
-    recovery: Math.round(20 + Math.random() * 30),
-  }));
+  const trendData = [
+    { month: "Jan", bleaching: 45, recovery: 32 },
+    { month: "Feb", bleaching: 48, recovery: 35 },
+    { month: "Mar", bleaching: 52, recovery: 38 },
+    { month: "Apr", bleaching: 55, recovery: 40 },
+    { month: "May", bleaching: 62, recovery: 36 },
+    { month: "Jun", bleaching: 68, recovery: 31 },
+    { month: "Jul", bleaching: 72, recovery: 28 },
+    { month: "Aug", bleaching: 75, recovery: 25 },
+    { month: "Sep", bleaching: 69, recovery: 30 },
+    { month: "Oct", bleaching: 58, recovery: 36 },
+    { month: "Nov", bleaching: 49, recovery: 42 },
+    { month: "Dec", bleaching: 44, recovery: 45 },
+  ];
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-6">
